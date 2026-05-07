@@ -1,14 +1,15 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    Pressable,
-    StyleSheet,
-    Text,
-    View
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { getProductsByCategory } from "../../services/api";
 
 export default function ProductListScreen() {
@@ -41,7 +42,7 @@ export default function ProductListScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <Text style={styles.header}>{formatCategory(category)}</Text>
 
       {loading ? (
@@ -70,7 +71,7 @@ export default function ProductListScreen() {
       <Pressable style={styles.backButton} onPress={() => router.back()}>
         <Text style={styles.backText}>Back</Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -86,8 +87,9 @@ function formatCategory(category) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#ffffff"
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 20,
+    paddingBottom: 20
   },
   header: {
     backgroundColor: "#3f9fc5",

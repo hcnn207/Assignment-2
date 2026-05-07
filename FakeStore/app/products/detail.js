@@ -9,88 +9,107 @@ import {
   Text,
   View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/cartSlice";
 import { getProductById } from "../../services/api";
 
 export default function ProductDetailScreen() {
   const { productId } = useLocalSearchParams();
+  const dispatch = useDispatch();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    async function loadProduct() {
+      try {
+        setLoading(true);
+        const data = await getProductById(productId);
+        setProduct(data);
+      } catch (error) {
+        console.log("Error loading product:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     loadProduct();
   }, [productId]);
 
-  async function loadProduct() {
-    try {
-      setLoading(true);
-      const data = await getProductById(productId);
-      setProduct(data);
-    } catch (error) {
-      console.log("Error loading product:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   if (loading) {
     return (
-      <View style={styles.center}>
+      <SafeAreaView style={styles.center} edges={["top"]}>
         <ActivityIndicator size="large" />
-      </View>
+      </SafeAreaView>
     );
   }
 
   if (!product) {
     return (
-      <View style={styles.center}>
+      <SafeAreaView style={styles.center} edges={["top"]}>
         <Text>Product not found.</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Product Details</Text>
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.header}>Product Details</Text>
 
-      <Image source={{ uri: product.image }} style={styles.image} />
+        <Image source={{ uri: product.image }} style={styles.image} />
 
-      <Text style={styles.title}>{product.title}</Text>
+        <Text style={styles.title}>{product.title}</Text>
 
-      <View style={styles.infoBox}>
-        <Text style={styles.infoText}>Rate: {product.rating?.rate}</Text>
-        <Text style={styles.infoText}>Count: {product.rating?.count}</Text>
-        <Text style={styles.infoText}>
-          Price: ${Number(product.price).toFixed(2)}
-        </Text>
-      </View>
+        <View style={styles.infoBox}>
+          <Text style={styles.infoText}>Rate: {product.rating?.rate}</Text>
+          <Text style={styles.infoText}>Count: {product.rating?.count}</Text>
+          <Text style={styles.infoText}>
+            Price: ${Number(product.price).toFixed(2)}
+          </Text>
+        </View>
 
-      <View style={styles.buttonRow}>
-        <Pressable style={styles.button} onPress={() => router.back()}>
-          <Text style={styles.buttonText}>Back</Text>
-        </Pressable>
+        <View style={styles.buttonRow}>
+          <Pressable style={styles.button} onPress={() => router.back()}>
+            <Text style={styles.buttonText}>Back</Text>
+          </Pressable>
 
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Add to Cart</Text>
-        </Pressable>
-      </View>
+          <Pressable
+            style={styles.button}
+            onPress={() => {
+              console.log("Add to Cart pressed");
+              dispatch(addToCart(product));
+            }}  
+          >
+            <Text style={styles.buttonText}>Add to Cart</Text>
+          </Pressable>
+        </View>
 
-      <Text style={styles.descriptionTitle}>Description:</Text>
-      <Text style={styles.description}>{product.description}</Text>
-    </ScrollView>
+        <Text style={styles.descriptionTitle}>Description:</Text>
+        <Text style={styles.description}>{product.description}</Text>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#ffffff"
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 20
+  },
+  scrollContent: {
+    paddingBottom: 30
   },
   center: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    backgroundColor: "#ffffff"
   },
   header: {
     backgroundColor: "#3f9fc5",
@@ -130,7 +149,8 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginBottom: 16
+    marginBottom: 16,
+    zIndex: 10
   },
   button: {
     backgroundColor: "#2f6fb0",

@@ -1,50 +1,41 @@
-# Welcome to your Expo app 👋
+# Fake Store
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a React Native mobile application developed for Assignment 2.
 
-## Get started
+The app uses the Fake Store API to display product categories, product lists, and product details.
 
-1. Install dependencies
+## Features completed for Milestone 1
 
-   ```bash
-   npm install
-   ```
+- Fetches product categories from the Fake Store API
+- Displays categories on the home screen
+- Allows users to select a category
+- Displays a scrollable product list
+- Displays product images, titles, and prices
+- Allows users to open a product detail screen
+- Displays product image, title, rating, price, and description
+- Includes back navigation
+- Uses loading indicators while fetching data
 
-2. Start the app
+## Technologies used
 
-   ```bash
-   npx expo start
-   ```
+- React Native
+- Expo
+- Expo Router
+- JavaScript
+- Fake Store API
 
-In the output, you'll find options to open the app in a
+## API used
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Product data is fetched from:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+https://fakestoreapi.com
 
-## Get a fresh project
+## Milestone 1 screens
 
-When you're ready, run:
+- Category Screen
+- Product List Screen
+- Product Detail Screen
 
-```bash
-npm run reset-project
-```
+## Repository
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This repository contains the source code for the Fake Store mobile application.
