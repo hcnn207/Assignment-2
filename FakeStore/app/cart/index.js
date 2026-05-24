@@ -1,4 +1,5 @@
 import {
+  Alert,
   FlatList,
   Image,
   Pressable,
@@ -9,20 +10,97 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  clearCart,
   decreaseQuantity,
   increaseQuantity
 } from "../../redux/cartSlice";
+import { createNewOrder, updateCart } from "../../services/localApi";
 
 export default function CartScreen() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
-  
-  console.log("CART ITEMS:", cartItems);
+  const token = useSelector((state) => state.auth.token);
+
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  async function syncCartToServer(updatedItems) {
+    if (!token) {
+      return;
+    }
+
+    const serverItems = updatedItems.map((item) => ({
+      id: item.id,
+      price: item.price,
+      count: item.quantity
+    }));
+
+    await updateCart(token, serverItems);
+  }
+
+  async function handleIncrease(item) {
+    const updatedItems = cartItems.map((cartItem) =>
+      cartItem.id === item.id
+        ? { ...cartItem, quantity: cartItem.quantity + 1 }
+        : cartItem
+    );
+
+    dispatch(increaseQuantity(item.id));
+
+    try {
+      await syncCartToServer(updatedItems);
+    } catch (error) {
+      Alert.alert("Error", error.message || "Failed to update cart.");
+    }
+  }
+
+  async function handleDecrease(item) {
+    const updatedItems = cartItems
+      .map((cartItem) =>
+        cartItem.id === item.id
+          ? { ...cartItem, quantity: cartItem.quantity - 1 }
+          : cartItem
+      )
+      .filter((cartItem) => cartItem.quantity > 0);
+
+    dispatch(decreaseQuantity(item.id));
+
+    try {
+      await syncCartToServer(updatedItems);
+    } catch (error) {
+      Alert.alert("Error", error.message || "Failed to update cart.");
+    }
+  }
+
+  async function handleCheckout() {
+    if (cartItems.length === 0) {
+      return;
+    }
+
+    if (!token) {
+      Alert.alert("Error", "Please sign in first.");
+      return;
+    }
+
+    try {
+      const orderItems = cartItems.map((item) => ({
+        prodID: item.id,
+        price: item.price,
+        quantity: item.quantity
+      }));
+
+      await createNewOrder(token, orderItems);
+      await updateCart(token, []);
+
+      dispatch(clearCart());
+      Alert.alert("Success", "Order created successfully.");
+    } catch (error) {
+      Alert.alert("Error", error.message || "Failed to create order.");
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -63,22 +141,26 @@ export default function CartScreen() {
                   <View style={styles.buttonRow}>
                     <Pressable
                       style={styles.smallButton}
-                      onPress={() => dispatch(decreaseQuantity(item.id))}
+                      onPress={() => handleDecrease(item)}
                     >
-                      <Text style={styles.buttonText}>-</Text>
+                      <Text style={styles.smallButtonText}>-</Text>
                     </Pressable>
 
                     <Pressable
                       style={styles.smallButton}
-                      onPress={() => dispatch(increaseQuantity(item.id))}
+                      onPress={() => handleIncrease(item)}
                     >
-                      <Text style={styles.buttonText}>+</Text>
+                      <Text style={styles.smallButtonText}>+</Text>
                     </Pressable>
                   </View>
                 </View>
               </View>
             )}
           />
+
+          <Pressable style={styles.checkoutButton} onPress={handleCheckout}>
+            <Text style={styles.checkoutButtonText}>Check Out</Text>
+          </Pressable>
         </>
       )}
     </SafeAreaView>
@@ -132,7 +214,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#333333",
     padding: 10,
-    marginBottom: 12
+    marginBottom: 12,
+    backgroundColor: "#f8f8f8"
   },
   image: {
     width: 80,
@@ -169,9 +252,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 4
   },
-  buttonText: {
+  smallButtonText: {
     color: "#ffffff",
     fontWeight: "bold",
-    fontSize: 20
+    fontSize: 20,
+    textAlign: "center"
+  },
+  checkoutButton: {
+    backgroundColor: "#2f6fb0",
+    paddingVertical: 12,
+    borderRadius: 6,
+    marginTop: 10,
+    marginBottom: 20
+  },
+  checkoutButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    fontSize: 18,
+    textAlign: "center"
   }
 });

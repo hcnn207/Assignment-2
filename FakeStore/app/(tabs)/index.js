@@ -1,11 +1,11 @@
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Pressable,
-    StyleSheet,
-    Text,
-    View
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getCategories } from "../../services/api";
